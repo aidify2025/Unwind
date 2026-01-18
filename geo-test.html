@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>增强版点击猫咪</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF9F43',
+                        background: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'ear-wiggle': 'wiggle 0.5s ease-in-out',
+                        'eye-blink': 'blink 0.3s ease-in-out',
+                        'pulse-soft': 'pulse 2s infinite'
+                    },
+                    keyframes: {
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(0deg)' },
+                            '25%': { transform: 'rotate(5deg)' },
+                            '75%': { transform: 'rotate(-5deg)' }
+                        },
+                        blink: {
+                            '0%, 100%': { transform: 'scaleY(1)' },
+                            '50%': { transform: 'scaleY(0.1)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .cat-shadow {
+                filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));
+            }
+            .cat-hover:hover {
+                transform: scale(1.02);
+                transition: transform 0.2s ease;
+            }
+            .cat-active:active {
+                transform: scale(0.98);
+                transition: transform 0.1s ease;
+            }
+            .eye {
+                cursor: pointer;
+                transition: transform 0.1s ease;
+            }
+            .eye:hover {
+                transform: scale(1.1);
+            }
+            .ear {
+                cursor: pointer;
+                transition: transform 0.1s ease;
+                transform-origin: bottom center;
+            }
+            .ear:hover {
+                transform: rotate(5deg);
+            }
+            .bg-pattern {
+                background-color: #f9fafb;
+                background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+                background-size: 20px 20px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-pattern min-h-screen flex flex-col items-center justify-center p-4">
+<div class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">增强版点击猫咪</h1>
+    <p class="text-gray-600">点击猫咪的眼睛让它眨眼，点击耳朵让它动一动，点击身体听它叫</p>
+</div>
+
+<div class="relative w-80 h-80 mb-8">
+    <!-- 猫咪主体 -->
+    <div id="catBody" class="absolute inset-0 flex items-center justify-center cursor-pointer cat-hover cat-active">
+        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/7bbd3d92d670435d9dc08d61e8314a56~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260118003058C78557CE5AB07538B2BC&rrcfp=f06b921b&x-expires=1771259474&x-signature=Khp1ZLtr8%2BApWfoBRUtZmdgMP7g%3D"
+             alt="可爱的卡通猫咪"
+             class="w-full h-full object-contain cat-shadow transition-all duration-200">
+    </div>
+
+    <!-- 左眼 -->
+    <div id="leftEye" class="absolute left-[30%] top-[35%] w-[15%] h-[15%] eye">
+        <div class="w-full h-full rounded-full bg-black bg-opacity-70"></div>
+    </div>
+
+    <!-- 右眼 -->
+    <div id="rightEye" class="absolute right-[30%] top-[35%] w-[15%] h-[15%] eye">
+        <div class="w-full h-full rounded-full bg-black bg-opacity-70"></div>
+    </div>
+
+    <!-- 左眼 -->
+    <div id="leftEar" class="absolute left-[20%] top-[15%] w-[15%] h-[25%] ear">
+        <div class="w-full h-full"></div>
+    </div>
+
+    <!-- 右眼 -->
+    <div id="rightEar" class="absolute right-[20%] top-[15%] w-[15%] h-[25%] ear">
+        <div class="w-full h-full"></div>
+    </div>
+
+    <!-- 眨眼效果遮罩 -->
+    <div id="leftEyeBlink" class="absolute left-[30%] top-[35%] w-[15%] h-[15%] bg-orange-400 rounded-full hidden"></div>
+    <div id="rightEyeBlink" class="absolute right-[30%] top-[35%] w-[15%] h-[15%] bg-orange-400 rounded-full hidden"></div>
+
+    <!-- 眨眼表情 -->
+    <div id="winkingCat" class="absolute inset-0 hidden">
+        <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/a5d8a062ac2a4e62ba42158fe46aca56~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260118003058C78557CE5AB07538B2BC&rrcfp=f06b921b&x-expires=1771259485&x-signature=kNiTCuXU0c4jwIg3tYRiJoLGI2k%3D"
+             alt="眨眼的卡通猫咪"
+             class="w-full h-full object-contain cat-shadow">
+    </div>
+</div>
+
+<div class="flex flex-wrap justify-center gap-4">
+    <button id="meowBtn" class="bg-primary hover:bg-orange-500 text-white font-bold py-2 px-6 rounded-full shadow-md transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-opacity-50" onclick="playCatSound()">
+        点击我也可以听到猫叫
+    </button>
+    <button id="resetBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-full shadow-md transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50" onclick="resetCat()">
+        重置猫咪
+    </button>
+    <button id="toggleLogsBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full shadow-md transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50" onclick="toggleLogs()">
+        显示日志
+    </button>
+    <button onclick="window.location.href='index.html'" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-full shadow-md transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-50">
+        返回原版
+    </button>
+</div>
+
+<!-- 日志区域 -->
+<div id="logs" class="mt-6 w-full max-w-md bg-white p-4 rounded-lg shadow-md hidden">
+    <h3 class="text-lg font-semibold mb-2 text-gray-700">调试日志</h3>
+    <div id="logContent" class="text-sm font-mono h-40 overflow-y-auto p-2 bg-gray-50 rounded"></div>
+</div>
+
+<!-- 音频元素 -->
+<audio id="catSound1" preload="auto">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-cat-meow-1235.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="catSound2" preload="auto">
+    <source src="https://www.soundjay.com/meow/sounds/meow-01.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="catSound3" preload="auto">
+    <source src="https://freesound.org/data/previews/256/256459_4973669-lq.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    // 获取DOM元素
+    const catBody = document.getElementById('catBody');
+    const leftEye = document.getElementById('leftEye');
+    const rightEye = document.getElementById('rightEye');
+    const leftEar = document.getElementById('leftEar');
+    const rightEar = document.getElementById('rightEar');
+    const leftEyeBlink = document.getElementById('leftEyeBlink');
+    const rightEyeBlink = document.getElementById('rightEyeBlink');
+    const winkingCat = document.getElementById('winkingCat');
+    const meowBtn = document.getElementById('meowBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const toggleLogsBtn = document.getElementById('toggleLogsBtn');
+    const logs = document.getElementById('logs');
+    const logContent = document.getElementById('logContent');
+
+    // 音频元素
+    const catSound1 = document.getElementById('catSound1');
+    const catSound2 = document.getElementById('catSound2');
+    const catSound3 = document.getElementById('catSound3');
+    const catSounds = [catSound1, catSound2, catSound3];
+
+    // 状态变量
+    let isPlaying = false;
+    let isWinking = false;
+    let logVisible = false;
+    let audioContext = null;
+    let userInteracted = false;
+    let audioSupported = false;
+
+    // 记录日志
+    function log(message) {
+        const now = new Date().toLocaleTimeString();
+        const logEntry = `[${now}] ${message}`;
+        console.log(logEntry);
+        logContent.innerHTML += logEntry + '<br>';
+        logContent.scrollTop = logContent.scrollHeight;
+    }
+
+    // 切换日志显示
+    function toggleLogs() {
+        logVisible = !logVisible;
+        logs.classList.toggle('hidden', !logVisible);
+        toggleLogsBtn.textContent = logVisible ? '隐藏日志' : '显示日志';
+    }
+
+    // 检测音频支持
+    function checkAudioSupport() {
+        const audio = new Audio();
+        audioSupported = !!(audio.canPlayType && audio.canPlayType('audio/mpeg;').replace(/no/, ''));
+        log('音频支持状态:', audioSupported ? '支持' : '不支持');
+
+        // 检查Web Audio API支持
+        if ('AudioContext' in window || 'webkitAudioContext' in window) {
+            log('Web Audio API 支持');
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                log('AudioContext 初始化成功');
+            } catch (e) {
+                log('AudioContext 初始化失败: ' + e.message);
+            }
+        } else {
+            log('Web Audio API 不支持');
+        }
+
+        return audioSupported;
+    }
+
+    // 初始化
+    window.addEventListener('load', function() {
+        log('页面加载完成');
+
+        // 检查音频支持
+        checkAudioSupport();
+
+        // 预加载音频
+        catSounds.forEach((sound, index) => {
+            sound.load();
+            sound.addEventListener('canplaythrough', function() {
+                log(`音频${index + 1}加载完成`);
+            });
+            sound.addEventListener('error', function(e) {
+                log(`音频${index + 1}加载失败: ${e.target.error.code}`);
+            });
+        });
+
+        log('初始化完成，点击猫咪开始互动吧！');
+    });
+
+    // 监听用户交互事件，解锁音频
+    ['click', 'touchstart', 'keydown'].forEach(event => {
+        document.addEventListener(event, function enableAudio() {
+            if (!userInteracted) {
+                userInteracted = true;
+                log('用户首次交互，音频解锁');
+
+                // 尝试播放静音音频以解锁自动播放
+                const unlockAudio = new Audio();
+                unlockAudio.volume = 0;
+                unlockAudio.play().then(() => {
+                    log('音频自动播放已解锁');
+                }).catch(e => {
+                    log('音频自动播放解锁失败:', e.message);
+                });
+
+                // 如果AudioContext被挂起，尝试恢复
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume().catch(e => {
+                        log('无法恢复AudioContext:', e.message);
+                    });
+                }
+            }
+        }, { once: true });
+    });
+
+    // 播放猫叫声
+    function playCatSound() {
+        if (isPlaying) return;
+
+        isPlaying = true;
+        meowBtn.disabled = true;
+        meowBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        meowBtn.textContent = '播放中...';
+
+        log('开始播放猫叫声...');
+        log('用户交互状态:', userInteracted ? '已交互' : '未交互');
+        log('音频支持状态:', audioSupported ? '支持' : '不支持');
+
+        // 播放时猫咪微微颤抖
+        catBody.classList.add('animate-pulse-soft');
+
+        // 尝试多种音频播放方式
+        playWithAudioElement().then(success => {
+            if (!success) {
+                log('尝试使用Web Audio API...');
+                return playWithWebAudioAPI();
+            }
+            return success;
+        }).catch(error => {
+            log('所有播放方式失败:', error.message);
+            alert('无法播放声音，请检查浏览器音频设置');
+            resetCat();
+        });
+    }
+
+    // 使用Audio元素播放
+    function playWithAudioElement() {
+        return new Promise((resolve, reject) => {
+            // 尝试多个音频源
+            const sources = [
+                'https://assets.mixkit.co/sfx/preview/mixkit-cat-meow-1235.mp3',
+                'https://www.soundjay.com/meow/sounds/meow-01.mp3',
+                'https://freesound.org/data/previews/256/256459_4973669-lq.mp3'
+            ];
+
+            let currentSource = 0;
+            const audio = new Audio();
+
+            function tryNextSource() {
+                if (currentSource >= sources.length) {
+                    log('所有音频源播放失败');
+                    resolve(false);
+                    return;
+                }
+
+                const source = sources[currentSource];
+                log(`尝试播放音频源 ${currentSource + 1}/${sources.length}: ${source}`);
+
+                audio.src = source;
+                audio.currentTime = 0;
+
+                audio.onended = function() {
+                    log('音频播放完成');
+                    resetCat();
+                    resolve(true);
+                };
+
+                audio.onerror = function(e) {
+                    log(`音频源播放失败: ${e.target.error.code}`);
+                    currentSource++;
+                    tryNextSource();
+                };
+
+                audio.play().catch(e => {
+                    log(`播放失败: ${e.message}`);
+                    currentSource++;
+                    tryNextSource();
+                });
+            }
+
+            tryNextSource();
+
+            // 超时处理
+            setTimeout(() => {
+                if (isPlaying) {
+                    log('音频播放超时');
+                    audio.pause();
+                    resetCat();
+                    resolve(false);
+                }
+            }, 5000);
+        });
+    }
+
+    // 使用Web Audio API播放
+    function playWithWebAudioAPI() {
+        return new Promise((resolve, reject) => {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    log('AudioContext 重新初始化成功');
+                } catch (e) {
+                    log('无法创建AudioContext: ' + e.message);
+                    resolve(false);
+                    return;
+                }
+            }
+
+            // 如果AudioContext被挂起，尝试恢复
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().catch(e => {
+                    log('无法恢复AudioContext: ' + e.message);
+                });
+            }
+
+            try {
+                // 创建简单的喵叫声
+                log('使用Web Audio API生成喵叫声');
+
+                // 创建振荡器
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                // 设置喵叫声的参数
+                oscillator.type = 'triangle'; // 三角波音色更柔和
+
+                // 创建喵叫声的频率变化
+                oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                oscillator.frequency.linearRampToValueAtTime(600, audioContext.currentTime + 0.1);
+                oscillator.frequency.linearRampToValueAtTime(500, audioContext.currentTime + 0.2);
+                oscillator.frequency.linearRampToValueAtTime(700, audioContext.currentTime + 0.3);
+                oscillator.frequency.linearRampToValueAtTime(450, audioContext.currentTime + 0.5);
+
+                // 设置音量包络
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+                // 开始播放
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+
+                log('Web Audio API声音生成成功');
+
+                // 声音结束后重置状态
+                setTimeout(() => {
+                    resetCat();
+                    resolve(true);
+                }, 600);
+
+            } catch (e) {
+                log('Web Audio API错误: ' + e.message);
+                resolve(false);
+            }
+        });
+    }
+
+    // 重置猫咪状态
+    function resetCat() {
+        isPlaying = false;
+        meowBtn.disabled = false;
+        meowBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        meowBtn.textContent = '点击我也可以听到猫叫';
+
+        // 隐藏眨眼效果
+        leftEyeBlink.classList.add('hidden');
+        rightEyeBlink.classList.add('hidden');
+        winkingCat.classList.add('hidden');
+
+        // 停止所有音频
+        catSounds.forEach(sound => {
+            sound.pause();
+            sound.currentTime = 0;
+        });
+
+        // 移除动画效果
+        catBody.classList.remove('animate-pulse-soft');
+
+        log('猫咪状态已重置');
+    }
+
+    // 左眼眨眼
+    leftEye.addEventListener('click', function(e) {
+        e.stopPropagation(); // 阻止事件冒泡
+        if (isWinking) return;
+
+        isWinking = true;
+        log('左眼眨眼');
+
+        // 显示眨眼效果
+        leftEyeBlink.classList.remove('hidden');
+
+        // 300毫秒后恢复
+        setTimeout(() => {
+            leftEyeBlink.classList.add('hidden');
+            isWinking = false;
+        }, 300);
+    });
+
+    // 右眼眨眼
+    rightEye.addEventListener('click', function(e) {
+        e.stopPropagation(); // 阻止事件冒泡
+        if (isWinking) return;
+
+        isWinking = true;
+        log('右眼眨眼');
+
+        // 显示眨眼效果
+        rightEyeBlink.classList.remove('hidden');
+
+        // 300毫秒后恢复
+        setTimeout(() => {
+            rightEyeBlink.classList.add('hidden');
+            isWinking = false;
+        }, 300);
+    });
+
+    // 左眼眨眼（使用眨眼表情）
+    leftEye.addEventListener('dblclick', function(e) {
+        e.stopPropagation(); // 阻止事件冒泡
+        if (isWinking) return;
+
+        isWinking = true;
+        log('左眼眨眼（眨眼表情）');
+
+        // 显示眨眼表情
+        winkingCat.classList.remove('hidden');
+
+        // 1秒后恢复
+        setTimeout(() => {
+            winkingCat.classList.add('hidden');
+            isWinking = false;
+        }, 1000);
+    });
+
+    // 左耳动一动
+    leftEar.addEventListener('click', function(e) {
+        e.stopPropagation(); // 阻止事件冒泡
+        log('左耳动一动');
+
+        // 添加动画类
+        leftEar.classList.add('animate-ear-wiggle');
+
+        // 动画结束后移除类
+        setTimeout(() => {
+            leftEar.classList.remove('animate-ear-wiggle');
+        }, 500);
+    });
+
+    // 右耳动一动
+    rightEar.addEventListener('click', function(e) {
+        e.stopPropagation(); // 阻止事件冒泡
+        log('右耳动一动');
+
+        // 添加动画类
+        rightEar.classList.add('animate-ear-wiggle');
+
+        // 动画结束后移除类
+        setTimeout(() => {
+            rightEar.classList.remove('animate-ear-wiggle');
+        }, 500);
+    });
+
+    // 点击猫咪身体播放声音
+    catBody.addEventListener('click', function() {
+        playCatSound();
+    });
+
+    // 双击猫咪身体随机眨眼
+    catBody.addEventListener('dblclick', function() {
+        if (isWinking) return;
+
+        isWinking = true;
+        log('猫咪眨眼');
+
+        // 显示眨眼表情
+        winkingCat.classList.remove('hidden');
+
+        // 1秒后恢复
+        setTimeout(() => {
+            winkingCat.classList.add('hidden');
+            isWinking = false;
+        }, 1000);
+    });
+</script>
+</body>
+</html>
